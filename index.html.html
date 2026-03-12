@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BOQ Automation – Finishing Works (Australian Standards)</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --ink: #0f0f0f;
+    --paper: #f5f0e8;
+    --cream: #ede8dc;
+    --accent: #c94f1e;
+    --gold: #c8952a;
+    --steel: #4a5568;
+    --light: #e8e2d4;
+    --white: #fdfaf5;
+    --success: #2d6a4f;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 0 2rem;
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    border-bottom: 3px solid var(--accent);
+  }
+  .header-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 1.2rem 0;
+    border-right: 1px solid #333;
+    padding-right: 2rem;
+  }
+  .header-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.4rem;
+    letter-spacing: 3px;
+    color: var(--paper);
+    line-height: 1;
+  }
+  .header-sub {
+    font-size: 0.7rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-top: 4px;
+  }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    padding-left: 2rem;
+  }
+  .project-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .meta-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .meta-label {
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #888;
+    width: 60px;
+  }
+  .meta-input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #444;
+    color: var(--paper);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    padding: 2px 4px;
+    width: 160px;
+    outline: none;
+  }
+  .meta-input::placeholder { color: #555; }
+  .meta-input:focus { border-bottom-color: var(--accent); }
+
+  /* MAIN LAYOUT */
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  /* SECTION LABEL */
+  .section-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 4px;
+    color: var(--accent);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--light);
+  }
+
+  /* RATES PANEL */
+  .rates-panel {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 4px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+  }
+  .rate-group { display: flex; flex-direction: column; gap: 4px; }
+  .rate-label {
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #888;
+  }
+  .rate-row { display: flex; align-items: center; gap: 6px; }
+  .rate-input {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 3px;
+    color: var(--gold);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    padding: 5px 8px;
+    width: 90px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .rate-input:focus { border-color: var(--accent); }
+  .rate-unit { font-size: 0.75rem; color: #666; }
+  .rates-note {
+    grid-column: 1 / -1;
+    font-size: 0.7rem;
+    color: #555;
+    border-top: 1px solid #222;
+    padding-top: 0.75rem;
+    margin-top: 0.25rem;
+  }
+
+  /* ROOMS TABLE */
+  .table-wrapper {
+    background: var(--white);
+    border: 1px solid var(--light);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+    box-shadow: 2px 4px 0 var(--light);
+  }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { background: var(--ink); color: var(--paper); }
+  th {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  th.num { text-align: right; }
+  tbody tr { border-bottom: 1px solid var(--light); transition: background 0.15s; }
+  tbody tr:hover { background: var(--cream); }
+  tbody tr:last-child { border-bottom: none; }
+  td {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    vertical-align: middle;
+  }
+  td.num {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    text-align: right;
+    color: var(--steel);
+  }
+  td.cost {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    text-align: right;
+    font-weight: 600;
+    color: var(--success);
+  }
+
+  .cell-input {
+    border: none;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    width: 100%;
+    outline: none;
+    color: var(--ink);
+  }
+  .cell-input.num-input {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    text-align: right;
+    width: 60px;
+  }
+  .cell-input:focus {
+    background: #fff9f0;
+    border-radius: 2px;
+    padding: 1px 4px;
+  }
+
+  select.cell-input {
+    cursor: pointer;
+    width: auto;
+    min-width: 120px;
+  }
+
+  .checkbox-cell { text-align: center; }
+  input[type="checkbox"] {
+    width: 15px; height: 15px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  .del-btn {
+    background: none;
+    border: none;
+    color: #ccc;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 2px 6px;
+    border-radius: 3px;
+    transition: color 0.2s, background 0.2s;
+  }
+  .del-btn:hover { color: var(--accent); background: #fff0ec; }
+
+  .add-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: 2px dashed var(--light);
+    color: var(--steel);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    padding: 10px 16px;
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 0 0 4px 4px;
+  }
+  .add-btn:hover { background: var(--cream); border-color: var(--accent); color: var(--accent); }
+
+  /* SUMMARY */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .summary-card {
+    background: var(--white);
+    border: 1px solid var(--light);
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 2px 4px 0 var(--light);
+  }
+  .summary-card-header {
+    background: var(--cream);
+    padding: 8px 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--steel);
+    border-bottom: 1px solid var(--light);
+  }
+  .summary-rows { padding: 0.5rem 0; }
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 14px;
+    font-size: 0.82rem;
+    border-bottom: 1px solid var(--light);
+  }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-row .s-label { color: var(--steel); }
+  .summary-row .s-val {
+    font-family: 'DM Mono', monospace;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+  .summary-row.total {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .summary-row.total .s-label { color: #aaa; font-size: 0.75rem; letter-spacing: 1px; }
+  .summary-row.total .s-val { color: var(--gold); font-size: 1rem; }
+
+  /* GRAND TOTAL BANNER */
+  .grand-total-banner {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 4px;
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    border-left: 6px solid var(--accent);
+  }
+  .gt-left { display: flex; flex-direction: column; gap: 4px; }
+  .gt-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 4px;
+    color: var(--paper);
+  }
+  .gt-sub { font-size: 0.7rem; letter-spacing: 2px; color: #888; text-transform: uppercase; }
+  .gt-amount {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    color: var(--gold);
+    letter-spacing: 2px;
+  }
+  .gt-breakdown { display: flex; gap: 2rem; }
+  .gt-item { text-align: center; }
+  .gt-item-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--paper);
+  }
+  .gt-item-label { font-size: 0.6rem; color: #666; letter-spacing: 2px; text-transform: uppercase; }
+
+  /* ACTIONS */
+  .actions {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+  .btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: #a83d12; }
+  .btn-secondary { background: var(--ink); color: var(--paper); }
+  .btn-secondary:hover { background: #333; }
+  .btn-outline { background: transparent; border: 2px solid var(--ink); color: var(--ink); }
+  .btn-outline:hover { background: var(--ink); color: var(--paper); }
+
+  /* WATERMARK */
+  .footer-note {
+    text-align: center;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    color: #bbb;
+    text-transform: uppercase;
+    padding: 1rem 0 2rem;
+  }
+
+  /* NCC COMPLIANCE PANEL */
+  .ncc-panel {
+    background: var(--white);
+    border: 1px solid var(--light);
+    border-left: 4px solid var(--steel);
+    border-radius: 4px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 2px 4px 0 var(--light);
+  }
+  .ncc-intro {
+    font-size: 0.82rem;
+    color: var(--steel);
+    margin-bottom: 1.2rem;
+    line-height: 1.6;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--light);
+  }
+  .ncc-intro strong { color: var(--ink); }
+  .ncc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 0.6rem;
+    margin-bottom: 1.2rem;
+  }
+  .ncc-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--light);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--paper);
+  }
+  .ncc-item:hover { border-color: var(--steel); background: var(--cream); }
+  .ncc-item.checked { border-color: var(--success); background: #f0faf4; }
+  .ncc-item.checked .ncc-check { background: var(--success); border-color: var(--success); color: white; }
+  .ncc-check {
+    width: 18px; height: 18px; min-width: 18px;
+    border: 2px solid #ccc;
+    border-radius: 3px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem;
+    margin-top: 1px;
+    transition: all 0.15s;
+  }
+  .ncc-text { display: flex; flex-direction: column; gap: 2px; }
+  .ncc-code {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--accent);
+    letter-spacing: 1px;
+  }
+  .ncc-desc {
+    font-size: 0.78rem;
+    color: var(--ink);
+    line-height: 1.4;
+  }
+  .ncc-footer {
+    font-size: 0.7rem;
+    color: #999;
+    background: var(--cream);
+    border-radius: 3px;
+    padding: 8px 12px;
+    line-height: 1.5;
+    border-left: 3px solid #ddd;
+  }
+
+  @media print {
+    .ncc-panel { break-inside: avoid; }
+  }
+
+  @media print {
+    body { background: white; }
+    .actions { display: none; }
+    .add-btn { display: none; }
+    .del-btn { display: none; }
+    .rates-panel { background: #111; }
+    header { background: #111; }
+  }
+
+  /* Animations */
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  tbody tr { animation: fadeIn 0.2s ease; }
+  .grand-total-banner { animation: fadeIn 0.4s ease; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="header-title">BOQ Automation</div>
+    <div class="header-sub">Residential Finishing Works · AS Standards · Rate Analysis Tool</div>
+  </div>
+  <div class="header-right">
+    <div class="project-meta">
+      <div class="meta-field">
+        <span class="meta-label">Project</span>
+        <input class="meta-input" id="projName" placeholder="Enter project name" value="Residential Dwelling – Lot 12"/>
+      </div>
+      <div class="meta-field">
+        <span class="meta-label">Location</span>
+        <input class="meta-input" id="projLoc" placeholder="City / Site"/>
+      </div>
+      <div class="meta-field">
+        <span class="meta-label">Date</span>
+        <input class="meta-input" id="projDate" type="date"/>
+      </div>
+      <div class="meta-field">
+        <span class="meta-label">Ref No.</span>
+        <input class="meta-input" id="projRef" placeholder="BOQ-2026-001"/>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- UNIT RATES -->
+  <div class="section-label">Unit Rates Configuration</div>
+  <div class="rates-panel">
+    <div class="rate-group">
+      <div class="rate-label">Render / Set (13mm) — AS 2589</div>
+      <div class="rate-row">
+        <input class="rate-input" id="r_plaster" type="number" value="45" step="5"/>
+        <span class="rate-unit">A$ / m²</span>
+      </div>
+    </div>
+    <div class="rate-group">
+      <div class="rate-label">Floor Tiles (Porcelain) — AS 3958.1</div>
+      <div class="rate-row">
+        <input class="rate-input" id="r_floor_tile" type="number" value="95" step="5"/>
+        <span class="rate-unit">A$ / m²</span>
+      </div>
+    </div>
+    <div class="rate-group">
+      <div class="rate-label">Wall Tiles (Ceramic) — AS 3958.1</div>
+      <div class="rate-row">
+        <input class="rate-input" id="r_wall_tile" type="number" value="75" step="5"/>
+        <span class="rate-unit">A$ / m²</span>
+      </div>
+    </div>
+    <div class="rate-group">
+      <div class="rate-label">Interior Paint (2 coats) — AS/NZS 2311</div>
+      <div class="rate-row">
+        <input class="rate-input" id="r_paint_int" type="number" value="18" step="2"/>
+        <span class="rate-unit">A$ / m²</span>
+      </div>
+    </div>
+    <div class="rate-group">
+      <div class="rate-label">Exterior Paint — AS/NZS 2311</div>
+      <div class="rate-row">
+        <input class="rate-input" id="r_paint_ext" type="number" value="22" step="2"/>
+        <span class="rate-unit">A$ / m²</span>
+      </div>
+    </div>
+    <div class="rate-group">
+      <div class="rate-label">Suspended Ceiling (Gyprock) — AS 2588</div>
+      <div class="rate-row">
+        <input class="rate-input" id="r_ceiling" type="number" value="65" step="5"/>
+        <span class="rate-unit">A$ / m²</span>
+      </div>
+    </div>
+    <div class="rate-group">
+      <div class="rate-label">Skirting Board (Timber MDF)</div>
+      <div class="rate-row">
+        <input class="rate-input" id="r_skirting" type="number" value="28" step="2"/>
+        <span class="rate-unit">A$ / m</span>
+      </div>
+    </div>
+    <div class="rate-group">
+      <div class="rate-label">Contingency (AIQS Guideline)</div>
+      <div class="rate-row">
+        <input class="rate-input" id="r_contingency" type="number" value="10" step="1" min="0" max="25"/>
+        <span class="rate-unit">%</span>
+      </div>
+    </div>
+    <div class="rates-note">💡 Rates based on current Australian market averages (AUD, incl. labour & materials, excl. GST). References: AS 3958.1 (tiling), AS/NZS 2311 (painting), AS 2589 (render), AS 2588 (gypsum board). Add 10% GST to final total as required.</div>
+  </div>
+
+  <!-- ROOMS TABLE -->
+  <div class="section-label">Room-wise Quantity Input</div>
+  <div class="table-wrapper">
+    <table id="roomTable">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Room / Area</th>
+          <th>Floor Type</th>
+          <th class="num">Length (m)</th>
+          <th class="num">Width (m)</th>
+          <th class="num">Height (m)</th>
+          <th class="num">Floor m²</th>
+          <th class="num">Wall m²</th>
+          <th class="num">Perimeter m</th>
+          <th style="text-align:center">Plaster</th>
+          <th style="text-align:center">Floor Tile</th>
+          <th style="text-align:center">Wall Tile</th>
+          <th style="text-align:center">Paint</th>
+          <th style="text-align:center">Ceiling</th>
+          <th class="num">Cost (AUD)</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="roomBody"></tbody>
+    </table>
+    <button class="add-btn" onclick="addRoom()">＋ Add Room / Area</button>
+  </div>
+
+  <!-- SUMMARY + GRAND TOTAL -->
+  <div class="section-label">Summary by Trade</div>
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="summary-card-header">Work Item Breakdown</div>
+      <div class="summary-rows" id="tradeSummary"></div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-card-header">Cost Build-up</div>
+      <div class="summary-rows" id="costBuildUp"></div>
+    </div>
+  </div>
+
+  <div class="grand-total-banner" id="grandTotalBanner">
+    <div class="gt-left">
+      <div class="gt-title">Grand Total Estimate</div>
+      <div class="gt-sub" id="gtSub">Incl. GST · Incl. contingency · Finishing Works Only</div>
+    </div>
+    <div class="gt-breakdown" id="gtBreakdown"></div>
+    <div class="gt-amount" id="gtAmount">₹ 0</div>
+  </div>
+
+  <!-- NCC COMPLIANCE -->
+  <div class="section-label">NCC Compliance Notes — Volume Two (Class 1 Residential)</div>
+  <div class="ncc-panel">
+    <div class="ncc-intro">
+      The following checklist references the <strong>National Construction Code (NCC) 2022</strong> — Volume Two, applicable to Class 1 buildings (single residential dwellings). Tick items confirmed compliant for this project.
+    </div>
+    <div class="ncc-grid" id="nccGrid"></div>
+    <div class="ncc-footer">
+      ⚠ This checklist is a project aid only and does not constitute a formal compliance certificate. Engage a licensed building surveyor or certifier for statutory approval under your state/territory building regulations.
+    </div>
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="actions">
+    <button class="btn btn-primary" onclick="printBOQ()">🖨 Print / Export PDF</button>
+    <button class="btn btn-secondary" onclick="exportCSV()">⬇ Export CSV</button>
+    <button class="btn btn-outline" onclick="clearAll()">✕ Clear All Rooms</button>
+  </div>
+
+  <div class="footer-note">BOQ Automation Tool · Residential Finishing Works · Australian Standards · Built for Civil Engineering Portfolio</div>
+
+</main>
+
+<script>
+// --- DATA ---
+const defaultRooms = [
+  { name: 'Master Bedroom', type: 'floor_tile', L: 4.5, W: 3.8, H: 3.0, plaster: true, floor: true, wall: false, paint: true, ceiling: true },
+  { name: 'Bedroom 2', type: 'floor_tile', L: 3.8, W: 3.2, H: 3.0, plaster: true, floor: true, wall: false, paint: true, ceiling: false },
+  { name: 'Living Room', type: 'floor_tile', L: 6.0, W: 4.5, H: 3.2, plaster: true, floor: true, wall: false, paint: true, ceiling: true },
+  { name: 'Kitchen', type: 'floor_tile', L: 3.5, W: 2.8, H: 3.0, plaster: true, floor: true, wall: true, paint: false, ceiling: false },
+  { name: 'Bathroom 1', type: 'wall_tile', L: 2.0, W: 1.5, H: 3.0, plaster: false, floor: true, wall: true, paint: false, ceiling: false },
+  { name: 'Bathroom 2', type: 'wall_tile', L: 1.8, W: 1.4, H: 3.0, plaster: false, floor: true, wall: true, paint: false, ceiling: false },
+];
+
+let rooms = JSON.parse(JSON.stringify(defaultRooms));
+
+function getRate(id) { return parseFloat(document.getElementById(id).value) || 0; }
+
+function calcRoom(r) {
+  const floor = r.L * r.W;
+  const wall = 2 * (r.L + r.W) * r.H;
+  const perimeter = 2 * (r.L + r.W);
+  let cost = 0;
+  if (r.plaster) cost += wall * getRate('r_plaster');
+  if (r.floor) cost += floor * getRate('r_floor_tile');
+  if (r.wall) cost += wall * getRate('r_wall_tile');
+  if (r.paint) cost += wall * getRate('r_paint_int');
+  if (r.ceiling) cost += floor * getRate('r_ceiling');
+  cost += perimeter * getRate('r_skirting') * (r.floor ? 1 : 0);
+  return { floor, wall, perimeter, cost };
+}
+
+function fmt(n) { return n.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+function fmtInt(n) { return n.toLocaleString('en-AU'); }
+
+function renderTable() {
+  const tbody = document.getElementById('roomBody');
+  tbody.innerHTML = '';
+  rooms.forEach((r, i) => {
+    const { floor, wall, perimeter, cost } = calcRoom(r);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="color:#aaa;font-family:'DM Mono',monospace;font-size:0.75rem">${String(i+1).padStart(2,'0')}</td>
+      <td><input class="cell-input" value="${r.name}" onchange="rooms[${i}].name=this.value"/></td>
+      <td>
+        <select class="cell-input" onchange="rooms[${i}].type=this.value;render()">
+          <option value="floor_tile" ${r.type==='floor_tile'?'selected':''}>Vitrified</option>
+          <option value="wall_tile" ${r.type==='wall_tile'?'selected':''}>Ceramic</option>
+        </select>
+      </td>
+      <td class="num"><input class="cell-input num-input" type="number" value="${r.L}" step="0.1" onchange="rooms[${i}].L=+this.value;render()"/></td>
+      <td class="num"><input class="cell-input num-input" type="number" value="${r.W}" step="0.1" onchange="rooms[${i}].W=+this.value;render()"/></td>
+      <td class="num"><input class="cell-input num-input" type="number" value="${r.H}" step="0.1" onchange="rooms[${i}].H=+this.value;render()"/></td>
+      <td class="num">${fmt(floor)}</td>
+      <td class="num">${fmt(wall)}</td>
+      <td class="num">${fmt(perimeter)}</td>
+      <td class="checkbox-cell"><input type="checkbox" ${r.plaster?'checked':''} onchange="rooms[${i}].plaster=this.checked;render()"/></td>
+      <td class="checkbox-cell"><input type="checkbox" ${r.floor?'checked':''} onchange="rooms[${i}].floor=this.checked;render()"/></td>
+      <td class="checkbox-cell"><input type="checkbox" ${r.wall?'checked':''} onchange="rooms[${i}].wall=this.checked;render()"/></td>
+      <td class="checkbox-cell"><input type="checkbox" ${r.paint?'checked':''} onchange="rooms[${i}].paint=this.checked;render()"/></td>
+      <td class="checkbox-cell"><input type="checkbox" ${r.ceiling?'checked':''} onchange="rooms[${i}].ceiling=this.checked;render()"/></td>
+      <td class="cost">A$ ${fmt(cost)}</td>
+      <td><button class="del-btn" onclick="delRoom(${i})">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderSummary() {
+  let totPlaster = 0, totFloor = 0, totWall = 0, totPaint = 0, totCeiling = 0, totSkirting = 0;
+  let subTotal = 0;
+  rooms.forEach(r => {
+    const { floor, wall, perimeter } = calcRoom(r);
+    if (r.plaster) totPlaster += wall;
+    if (r.floor) { totFloor += floor; totSkirting += perimeter; }
+    if (r.wall) totWall += wall;
+    if (r.paint) totPaint += wall;
+    if (r.ceiling) totCeiling += floor;
+    subTotal += calcRoom(r).cost;
+  });
+
+  const contingencyPct = getRate('r_contingency') / 100;
+  const contingencyAmt = subTotal * contingencyPct;
+  const grandTotal = subTotal + contingencyAmt;
+  const gstAmt = grandTotal * 0.10;
+  const grandTotalIncGST = grandTotal + gstAmt;
+
+  // Trade summary
+  const ts = document.getElementById('tradeSummary');
+  ts.innerHTML = `
+    <div class="summary-row"><span class="s-label">Render / Set (AS 2589)</span><span class="s-val">${fmt(totPlaster)} m² · A$${fmtInt(Math.round(totPlaster*getRate('r_plaster')))}</span></div>
+    <div class="summary-row"><span class="s-label">Floor Tiling (AS 3958.1)</span><span class="s-val">${fmt(totFloor)} m² · A$${fmtInt(Math.round(totFloor*getRate('r_floor_tile')))}</span></div>
+    <div class="summary-row"><span class="s-label">Wall Tiling (AS 3958.1)</span><span class="s-val">${fmt(totWall)} m² · A$${fmtInt(Math.round(totWall*getRate('r_wall_tile')))}</span></div>
+    <div class="summary-row"><span class="s-label">Interior Paint (AS/NZS 2311)</span><span class="s-val">${fmt(totPaint)} m² · A$${fmtInt(Math.round(totPaint*getRate('r_paint_int')))}</span></div>
+    <div class="summary-row"><span class="s-label">Suspended Ceiling (AS 2588)</span><span class="s-val">${fmt(totCeiling)} m² · A$${fmtInt(Math.round(totCeiling*getRate('r_ceiling')))}</span></div>
+    <div class="summary-row"><span class="s-label">Skirting Board (Timber MDF)</span><span class="s-val">${fmt(totSkirting)} m · A$${fmtInt(Math.round(totSkirting*getRate('r_skirting')))}</span></div>
+  `;
+
+  // Cost build-up
+  const cb = document.getElementById('costBuildUp');
+  cb.innerHTML = `
+    <div class="summary-row"><span class="s-label">Direct Works Cost (excl. GST)</span><span class="s-val" style="color:var(--ink)">A$ ${fmt(subTotal)}</span></div>
+    <div class="summary-row"><span class="s-label">Contingency — AIQS (${getRate('r_contingency')}%)</span><span class="s-val" style="color:var(--gold)">A$ ${fmt(contingencyAmt)}</span></div>
+    <div class="summary-row"><span class="s-label">Subtotal (excl. GST)</span><span class="s-val" style="color:var(--ink)">A$ ${fmt(grandTotal)}</span></div>
+    <div class="summary-row" style="background:#fffbf0;border-left:3px solid var(--gold)"><span class="s-label" style="color:var(--gold);font-weight:600">GST (10% — A New Tax System Act 1999)</span><span class="s-val" style="color:var(--gold)">A$ ${fmt(gstAmt)}</span></div>
+    <div class="summary-row total"><span class="s-label">GRAND TOTAL (incl. GST)</span><span class="s-val">A$ ${fmt(grandTotalIncGST)}</span></div>
+  `;
+
+  // Grand total banner
+  document.getElementById('gtAmount').textContent = 'A$ ' + fmtInt(Math.round(grandTotalIncGST));
+  document.getElementById('gtSub').textContent = `Incl. GST (A$ ${fmt(gstAmt)}) · Contingency ${getRate('r_contingency')}% · Finishing Works`;
+  document.getElementById('gtBreakdown').innerHTML = `
+    <div class="gt-item"><div class="gt-item-val">${rooms.length}</div><div class="gt-item-label">Rooms</div></div>
+    <div class="gt-item"><div class="gt-item-val">${fmt(totFloor)}</div><div class="gt-item-label">Floor m²</div></div>
+    <div class="gt-item"><div class="gt-item-val">${fmt(totWall)}</div><div class="gt-item-label">Wall m²</div></div>
+  `;
+}
+
+function render() { renderTable(); renderSummary(); }
+
+function addRoom() {
+  rooms.push({ name: 'New Room', type: 'floor_tile', L: 3.0, W: 3.0, H: 3.0, plaster: true, floor: true, wall: false, paint: true, ceiling: false });
+  render();
+  // Scroll to bottom of table
+  document.getElementById('roomBody').lastElementChild?.scrollIntoView({ behavior: 'smooth' });
+}
+
+function delRoom(i) {
+  if (rooms.length === 1) { alert('At least one room is required.'); return; }
+  rooms.splice(i, 1);
+  render();
+}
+
+function clearAll() {
+  if (confirm('Clear all rooms and reset to default?')) {
+    rooms = JSON.parse(JSON.stringify(defaultRooms));
+    render();
+  }
+}
+
+function printBOQ() { window.print(); }
+
+function exportCSV() {
+  const headers = ['#','Room','Type','L(m)','W(m)','H(m)','Floor m2','Wall m2','Perimeter m','Render/Set','Floor Tile','Wall Tile','Paint','Susp. Ceiling','Cost (AUD excl. GST)'];
+  const rows = rooms.map((r, i) => {
+    const { floor, wall, perimeter, cost } = calcRoom(r);
+    return [i+1, r.name, r.type, r.L, r.W, r.H, floor.toFixed(2), wall.toFixed(2), perimeter.toFixed(2),
+      r.plaster?'Yes':'No', r.floor?'Yes':'No', r.wall?'Yes':'No', r.paint?'Yes':'No', r.ceiling?'Yes':'No', cost.toFixed(2)];
+  });
+  const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'BOQ_Finishing_Works_AUD.csv';
+  a.click();
+}
+
+// --- NCC COMPLIANCE ITEMS ---
+const nccItems = [
+  { code: 'NCC Vol.2 H1.2', desc: 'Thermal performance — wall & ceiling insulation meets energy efficiency requirements (6-star NatHERS or elemental provisions)' },
+  { code: 'NCC Vol.2 H1.3', desc: 'Glazing — external windows and doors meet thermal & solar heat gain requirements per climate zone' },
+  { code: 'NCC Vol.2 P2.4.1', desc: 'Wet area waterproofing — shower recesses, bathroom floors & walls waterproofed per AS 3740' },
+  { code: 'AS 3740', desc: 'Waterproofing of domestic wet areas — membranes installed to min. 1800mm height in shower, 150mm on floor' },
+  { code: 'NCC Vol.2 H4.1', desc: 'Floor tiles in wet areas — slip resistance R10 minimum (AS 4586 classification)' },
+  { code: 'AS 3958.1', desc: 'Ceramic tile installation — adhesive type, grout joints, movement joints and substrate preparation comply' },
+  { code: 'NCC Vol.2 H2.1', desc: 'Ceiling height — habitable rooms min. 2400mm, non-habitable min. 2100mm (e.g. bathrooms, laundry)' },
+  { code: 'AS/NZS 2311', desc: 'Painting — surface preparation, primer coats, and finish coats per manufacturer specs and Australian standard' },
+  { code: 'NCC Vol.2 H4.6', desc: 'Condensation management — vapour-permeable sarking or ventilation provisions included in wall/ceiling design' },
+  { code: 'AS 2588 / NCC H6.3', desc: 'Gypsum plasterboard / suspended ceilings — framing, fixing and jointing in accordance with AS 2588 and manufacturer specs' },
+  { code: 'NCC Vol.2 H8.1', desc: 'Sound insulation between sole-occupancy units (Class 1b) — Rw+Ctr ≥ 50 for walls, ≥ 50 for floors if applicable' },
+  { code: 'NCC Vol.2 H6.1', desc: 'Safe movement & access — skirting, thresholds and finish transitions do not create trip hazards per D3.6' },
+];
+
+let nccState = nccItems.map(() => false);
+
+function renderNCC() {
+  const grid = document.getElementById('nccGrid');
+  grid.innerHTML = '';
+  nccItems.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'ncc-item' + (nccState[i] ? ' checked' : '');
+    div.innerHTML = `
+      <div class="ncc-check">${nccState[i] ? '✓' : ''}</div>
+      <div class="ncc-text">
+        <span class="ncc-code">${item.code}</span>
+        <span class="ncc-desc">${item.desc}</span>
+      </div>`;
+    div.onclick = () => { nccState[i] = !nccState[i]; renderNCC(); };
+    grid.appendChild(div);
+  });
+}
+
+
+document.querySelectorAll('.rate-input').forEach(inp => inp.addEventListener('input', render));
+
+// Set today's date
+document.getElementById('projDate').value = new Date().toISOString().split('T')[0];
+
+// Initial render
+render();
+renderNCC();
+</script>
+</body>
+</html>
